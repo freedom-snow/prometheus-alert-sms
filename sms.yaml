@@ -1,0 +1,47 @@
+# 支持的webhook列表
+adapter:
+  - sms
+  - wechat
+  - dingTalk
+
+# 短信平台
+sms:
+  enable: true 
+  adapter_name: "xxh"
+
+  xxh:
+    enable: true
+    baseUrl: "http://10.165.223.18/hallmg/pages/work/dxqf/sendMessage.action"
+    userId: "99241fe9-ca15-4ca9-8373-c7e355612aeb"
+    receiverIds: "e2115d7b-6143-4424-ae8a-85afa2aff0b9"
+
+  # 容联云短信平台
+  RongLianYun:
+    enable: false
+    baseUrl: "https://app.cloopen.com:8883"
+    accountSid: "xxxxx"
+    appToken: "xxxxxx"
+    appId: "xxxx"
+    templateId: "xxxx"
+    phones: ["1811111111"]
+
+  # 阿里云短信平台
+  AliYun:
+    enable: false
+    aliRegion: "cn-hangzhou"
+    accessKeyId: "xxxx"
+    accessSecret: "xxxx"
+    phoneNumbers: "11111111111,22222222222"
+    signName: "xxxx"
+    templateCode: "xxxx"
+wechat:
+  enable: false
+  toUser: "Joker|Jase"
+  agentId: "1000002"
+  corpId: "xxxxxx"
+  corpSecret: "xxxxxx"
+
+dingTalk:
+  enable: false
+  secret: "SEC94xxxxxx"
+  access_token: "b438d4ce40c0xxxxx"

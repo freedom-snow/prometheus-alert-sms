@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-webhook-conf
+  namespace: monitoring
+data:
+  conf.yaml: |
+    # 支持的webhook列表
+    adapter:
+      - sms
+      - wechat
+      - dingTalk
+
+    # 短信平台
+    sms:
+      enable: false
+      adapter_name: "RongLianYun"
+
+      # 容联云短信平台
+      RongLianYun:
+        baseUrl: "https://app.cloopen.com:8883"
+        accountSid: "xxxxx"
+        appToken: "xxxxxx"
+        appId: "xxxx"
+        templateId: "xxxx"
+        phones: ["1811111111"]
+
+      # 阿里云短信平台
+      AliYun:
+        aliRegion: "cn-hangzhou"
+        accessKeyId: "xxxx"
+        accessSecret: "xxxx"
+        phoneNumbers: "11111111111,22222222222"
+        signName: "xxxx"
+        templateCode: "xxxx"
+    wechat:
+      enable: false
+      toUser: "Joker|Jase"
+      agentId: "1000002"
+      corpId: "xxxxxx"
+      corpSecret: "xxxxxx"
+
+    dingTalk:
+      enable: true
+      secret: "SEC94xxxxxx"
+      access_token: "b438d4ce40c0xxxxx"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-alert-webhook
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-alert-webhook
+  template:
+    metadata:
+      labels:
+        app: prometheus-alert-webhook
+    spec:
+      containers:
+        - name: prometheus-alert-webhook
+          image: registry.cn-hangzhou.aliyuncs.com/rookieops/prometheus-alert-sms:v0.0.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthCheck
+              port: tcp-9000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          readinessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /healthCheck
+                port: tcp-9000
+                scheme: HTTP
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 2
+          ports:
+            - name: tcp-9000
+              containerPort: 9000
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 512Mi
+          volumeMounts:
+            - name: alert-webhook-conf
+              mountPath: /app/conf/conf.yaml
+              subPath: conf.yaml
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
+      volumes:
+        - name: alert-webhook-conf
+          configMap:
+            name: alert-webhook-conf
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-alter-webhook
+  namespace: monitoring
+spec:
+  selector:
+    app: prometheus-alert-webhook
+  ports:
+    - name: tcp-9000
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
