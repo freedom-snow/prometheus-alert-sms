@@ -4,11 +4,11 @@
 目前支持：
 - 短信
     - 私有环境下短信接口，并支持通过配置alertmanager的web_hook URL 发送报警给预期的接受id，支持多个接受id(使用,分割)
-
+```alertmanager config 
       例：  webhook_configs:
             - send_resolved: true
                 url: "http://192.168.0.87:9000/sms?receiverIds=e2115d7b-6143-4424-ae8a-85afa2aff0b9"
-
+```
     - 容联云
     - 阿里云
 - 钉钉
